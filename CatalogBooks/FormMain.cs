@@ -132,9 +132,16 @@ namespace CatalogBooks
             }
         }
 
-        private void listViewAuthors_DoubleClick(object sender, EventArgs e)
+        private void listViewAuthors_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-
+            if (listViewAuthors.SelectedItems.Count > 0)
+            {
+                FormAuthorBooks formAuthorBooks = new FormAuthorBooks(int.Parse(listViewAuthors.SelectedItems[0].SubItems[0].Text));                
+                int x = listViewBooks.PointToScreen(Point.Empty).X + e.X;
+                int y = listViewBooks.PointToScreen(Point.Empty).Y + e.Y;
+                formAuthorBooks.DesktopLocation = new Point(x, y);
+                formAuthorBooks.Show();                
+            }
         }
 
         private void toolStripTextBoxFilter_TextChanged(object sender, EventArgs e)

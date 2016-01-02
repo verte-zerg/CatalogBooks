@@ -87,6 +87,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CheckFiles.cs" />
+    <Compile Include="FormAuthorBooks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormAuthorBooks.Designer.cs">
+      <DependentUpon>FormAuthorBooks.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormDataBase.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -117,6 +123,9 @@
     <Compile Include="Model\Books.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FormAuthorBooks.resx">
+      <DependentUpon>FormAuthorBooks.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormDataBase.resx">
       <DependentUpon>FormDataBase.cs</DependentUpon>
     </EmbeddedResource>
