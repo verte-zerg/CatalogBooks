@@ -195,7 +195,7 @@
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.splitContainer1);
             this.Name = "FormBooksDetected";
-            this.Text = "FormBooksDetected";
+            this.Text = "Сканирование файлов";
             this.Load += new System.EventHandler(this.FormBooksDetected_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);

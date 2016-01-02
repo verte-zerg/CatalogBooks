@@ -158,10 +158,13 @@ namespace CatalogBooks
             sw.Stop();
 
             TimeSpan elapsedTime = sw.Elapsed;
-            toolStripStatusLabelInfo.Text = String.Format("Время: {0} сек.", elapsedTime.TotalSeconds);
 
             if (ListBooks.Count == 0)
-                Close();
+                toolStripStatusLabelInfo.Text = "Сканирование не дало результатов. ";
+            else
+                toolStripStatusLabelInfo.Text = String.Format("Было обнаружено: {0} файлов. ", ListBooks.Count);
+
+            toolStripStatusLabelInfo.Text += String.Format("Время: {0:F2} сек.", elapsedTime.TotalSeconds);            
 
             LoadData();
         } 
