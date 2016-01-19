@@ -98,7 +98,7 @@
             this.listViewBooks.TabIndex = 1;
             this.listViewBooks.UseCompatibleStateImageBehavior = false;
             this.listViewBooks.View = System.Windows.Forms.View.Details;
-            this.listViewBooks.DoubleClick += new System.EventHandler(this.listViewBooks_DoubleClick);            
+            this.listViewBooks.DoubleClick += new System.EventHandler(this.listViewBooks_DoubleClick);
             // 
             // ColumnID
             // 
@@ -143,6 +143,7 @@
             this.listViewAuthors.TabIndex = 1;
             this.listViewAuthors.UseCompatibleStateImageBehavior = false;
             this.listViewAuthors.View = System.Windows.Forms.View.Details;
+            this.listViewAuthors.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listViewAuthors_MouseClick);
             this.listViewAuthors.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listViewAuthors_MouseDoubleClick);
             // 
             // columnAuthorID

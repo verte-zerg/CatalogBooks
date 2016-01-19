@@ -22,6 +22,10 @@ namespace CatalogBooks
         /// </summary>
         private BaseContext db;
         /// <summary>
+        /// Показывает, активировалась ли форма
+        /// </summary>
+        private bool activeForm;
+        /// <summary>
         /// Объекты для храниния исходных данных таблиц
         /// </summary>
         private List<ListViewItem> listBook, listAuthor;        
@@ -134,14 +138,20 @@ namespace CatalogBooks
 
         private void listViewAuthors_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (listViewAuthors.SelectedItems.Count > 0)
+            if (listViewAuthors.SelectedItems.Count > 0 && activeForm)
             {
                 FormAuthorBooks formAuthorBooks = new FormAuthorBooks(int.Parse(listViewAuthors.SelectedItems[0].SubItems[0].Text));                
                 int x = listViewBooks.PointToScreen(Point.Empty).X + e.X;
                 int y = listViewBooks.PointToScreen(Point.Empty).Y + e.Y;
-                formAuthorBooks.DesktopLocation = new Point(x, y);
+                formAuthorBooks.DesktopLocation = new Point(x, y);    
+                activeForm = false;
                 formAuthorBooks.Show();                
             }
+        }
+
+        private void listViewAuthors_MouseClick(object sender, MouseEventArgs e)
+        {
+            activeForm = true;
         }
 
         private void toolStripTextBoxFilter_TextChanged(object sender, EventArgs e)
