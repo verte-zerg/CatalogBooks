@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 
@@ -17,11 +13,11 @@ namespace CatalogBooks
         /// <summary>
         /// ID выбранного автора
         /// </summary>
-        private int AuthorId { get; set; }
+        private int AuthorId { get; }
         /// <summary>
         /// Объект для работы с базой данных
         /// </summary>
-        private BaseContext db;
+        private readonly BaseContext _db;
 
         /// <summary>
         /// Уменьшает длинну строки до подходящих размеров
@@ -44,7 +40,7 @@ namespace CatalogBooks
         /// </summary>
         private void LoadData()
         {
-            var books = db.Authors.Where(author => author.AuthorID == AuthorId).Select(author => author.Books).First();            
+            var books = _db.Authors.Where(author => author.AuthorID == AuthorId).Select(author => author.Books).First();            
             DataTable dt = new DataTable();
             dt.Columns.Add("ID", Type.GetType("System.Int32"));            
             dt.Columns.Add("Название", Type.GetType("System.String"));
@@ -58,7 +54,7 @@ namespace CatalogBooks
         {
             InitializeComponent();
             AuthorId = authorId;
-            db = new BaseContext();
+            _db = new BaseContext();
             TransparencyKey = dataGridViewBooks.BackgroundColor;
         }
 
@@ -76,7 +72,7 @@ namespace CatalogBooks
         {
             if (dataGridViewBooks.SelectedRows.Count > 0)
             {
-                string path = db.Books.Find(dataGridViewBooks.SelectedRows[0].Cells["ID"].Value).Path;
+                string path = _db.Books.Find(dataGridViewBooks.SelectedRows[0].Cells["ID"].Value).Path;
                 if (File.Exists(path))
                     Process.Start(path);
                 else

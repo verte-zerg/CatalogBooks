@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Data.Entity;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -35,15 +32,15 @@ namespace CatalogBooks
         /// <summary>
         /// Объект для работы с базой данных
         /// </summary>
-        private BaseContext db;
+        private readonly BaseContext _db;
         /// <summary>
         /// Объект для хранинения отображаемой информации о файлах
         /// </summary>
-        private DataTable dt;
+        private readonly DataTable _dt;
         /// <summary>
         /// Объект для сканирования папок
         /// </summary>
-        private CheckFiles checkFiles;
+        private readonly CheckFiles _checkFiles;
 
         /// <summary>
         /// Конструктор класса
@@ -51,12 +48,12 @@ namespace CatalogBooks
         public FormBooksDetected()
         {
             InitializeComponent();
-            db = new BaseContext();
-            db.Books.Load();
-            db.Authors.Load();
+            _db = new BaseContext();
+            _db.Books.Load();
+            _db.Authors.Load();
             DictAuthor = new Dictionary<string, AdditionalInfo>();
-            dt = new DataTable("Books");
-            checkFiles = new CheckFiles(".pdf|.djvu|.fb2");
+            _dt = new DataTable("Books");
+            _checkFiles = new CheckFiles(".pdf|.djvu|.fb2");
             ListBooks = new List<Book>();
         }
 
@@ -65,23 +62,23 @@ namespace CatalogBooks
         /// </summary>
         private void LoadData()
         {           
-            dt.Columns.Add("Добавить", Type.GetType("System.Boolean"));
-            dt.Columns.Add("Название", Type.GetType("System.String"));
-            dt.Columns.Add("Год издания", Type.GetType("System.Int32"));
-            dt.Columns.Add("Путь", Type.GetType("System.String"));            
+            _dt.Columns.Add("Добавить", Type.GetType("System.Boolean"));
+            _dt.Columns.Add("Название", Type.GetType("System.String"));
+            _dt.Columns.Add("Год издания", Type.GetType("System.Int32"));
+            _dt.Columns.Add("Путь", Type.GetType("System.String"));            
 
             foreach (Book book in ListBooks)
             {
                 string name = Path.GetFileName(book.Path);
                 name = name.Remove(name.LastIndexOf('.'));
-                dt.Rows.Add(true, name, 2000, book.Path);
+                _dt.Rows.Add(true, name, 2000, book.Path);
                 DictAuthor[book.Path] = new AdditionalInfo()
                 {
                     Authors = "",
                     Keywords = ""
                 };
             }
-            dataGridViewMain.DataSource = dt;
+            dataGridViewMain.DataSource = _dt;
 
             dataGridViewMain.Columns["Путь"].ReadOnly = true;
         }
@@ -93,15 +90,15 @@ namespace CatalogBooks
         {
             for (int i = 0; i < ListBooks.Count; i++)
             {
-                ListBooks[i].Name = dt.Rows[i].ItemArray[1].ToString();
-                ListBooks[i].Year = (int) dt.Rows[i].ItemArray[2];
+                ListBooks[i].Name = _dt.Rows[i].ItemArray[1].ToString();
+                ListBooks[i].Year = (int) _dt.Rows[i].ItemArray[2];
             }
 
             for (int i = 0; i < ListBooks.Count; i++)
-                if ((bool) dt.Rows[i].ItemArray[0])
+                if ((bool) _dt.Rows[i].ItemArray[0])
                 {
                     ListBooks[i].KeyWords = DictAuthor[ListBooks[i].Path].Keywords;
-                    db.Books.Add(ListBooks[i]);
+                    _db.Books.Add(ListBooks[i]);
 
                     string authors = DictAuthor[ListBooks[i].Path].Authors;
 
@@ -112,8 +109,8 @@ namespace CatalogBooks
                     {
                         string firstName = authorInfo.Substring(authorInfo.IndexOf(' ') + 1);
                         string lastName = authorInfo.Substring(0, authorInfo.IndexOf(' '));
-                        if (!db.Authors.Any(x => x.FirstName == firstName && x.LastName == lastName))
-                            db.Authors.Add(new Author()
+                        if (!_db.Authors.Any(x => x.FirstName == firstName && x.LastName == lastName))
+                            _db.Authors.Add(new Author()
                             {
                                 FirstName = firstName,
                                 LastName = lastName,
@@ -122,12 +119,12 @@ namespace CatalogBooks
                         else
                         {
                             Author author =
-                                db.Authors.Where(x => x.FirstName == firstName && x.LastName == lastName).First();
+                                _db.Authors.First(x => x.FirstName == firstName && x.LastName == lastName);
                             author.Books.Add(ListBooks[i]);
                         }
                     }
 
-                    db.SaveChanges();
+                    _db.SaveChanges();
                 }
         }
 
@@ -153,7 +150,7 @@ namespace CatalogBooks
                 if (path != "")
                 {
                     toolStripStatusLabelInfo.Text = String.Format("Проверка каталога: {0}", path);
-                    ListBooks.AddRange(await checkFiles.Check(path));
+                    ListBooks.AddRange(await _checkFiles.Check(path));
                 }
             sw.Stop();
 

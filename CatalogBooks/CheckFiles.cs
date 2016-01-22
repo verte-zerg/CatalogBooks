@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Security.Cryptography;
 using System.IO;
 using System.Threading.Tasks;
@@ -28,7 +26,7 @@ namespace CatalogBooks
         /// <summary>
         /// Объект для работы с базой данных
         /// </summary>
-        private BaseContext db;
+        private readonly BaseContext _db;
 
         /// <summary>
         /// Констуктор класса
@@ -37,8 +35,8 @@ namespace CatalogBooks
         public CheckFiles(string filter)
         {
             Filter = filter;
-            db = new BaseContext();
-            db.Books.Load();
+            _db = new BaseContext();
+            _db.Books.Load();
         }
 
         /// <summary>
@@ -48,10 +46,7 @@ namespace CatalogBooks
         /// <returns>Путь к файлу</returns>
         private Task<string> GetMd5Sum(string path)
         {
-            return Task.Run(() =>
-            {
-                return BitConverter.ToString(MD5.Create().ComputeHash(File.ReadAllBytes(path))).Replace("-", "");
-            });            
+            return Task.Run(() => BitConverter.ToString(MD5.Create().ComputeHash(File.ReadAllBytes(path))).Replace("-", ""));            
         }
 
         /// <summary>
@@ -66,7 +61,7 @@ namespace CatalogBooks
                 string md5 = await GetMd5Sum(pathFile);
                 string ext = Path.GetExtension(pathFile);
 
-                if (!db.Books.Any(book => book.MD5 == md5) &&
+                if (!_db.Books.Any(book => book.MD5 == md5) &&
                     Filter.Split('|').Any(x => x == ext))
                     DetectedFiles.Add(new Book() {Path = pathFile, MD5 = md5});
             }

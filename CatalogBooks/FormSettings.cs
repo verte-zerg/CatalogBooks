@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CatalogBooks
@@ -20,7 +14,7 @@ namespace CatalogBooks
 
         private void FormSettings_Load(object sender, EventArgs e)
         {
-            checkBoxScan.Checked = (bool) Properties.Settings.Default.AutoScan;
+            checkBoxScan.Checked = Properties.Settings.Default.AutoScan;
             listBoxPaths.Items.AddRange(Properties.Settings.Default.PathsScan.Split(';').Where(s => !String.IsNullOrEmpty(s)).ToArray());
         }
 
@@ -50,9 +44,7 @@ namespace CatalogBooks
         private void buttonSave_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.AutoScan = checkBoxScan.Checked;
-            string paths = "";
-            foreach (string item in listBoxPaths.Items)
-                paths += item + ";";
+            string paths = listBoxPaths.Items.Cast<string>().Aggregate("", (current, s) => current + (s + ";"));
             Properties.Settings.Default.PathsScan = paths;
             Properties.Settings.Default.Save();
         }

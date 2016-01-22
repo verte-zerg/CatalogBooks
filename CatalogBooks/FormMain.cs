@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Data.Entity;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Windows.Forms;
 using CatalogBooks.Properties;
 
 namespace CatalogBooks
@@ -20,51 +14,51 @@ namespace CatalogBooks
         /// <summary>
         /// Объект для работы с базой данных
         /// </summary>
-        private BaseContext db;
+        private readonly BaseContext _db;
         /// <summary>
         /// Показывает, активировалась ли форма
         /// </summary>
-        private bool activeForm;
+        private bool _activeForm;
         /// <summary>
         /// Объекты для храниния исходных данных таблиц
         /// </summary>
-        private List<ListViewItem> listBook, listAuthor;        
+        private List<ListViewItem> _listBook, _listAuthor;        
         /// <summary>
         /// Конструктор класса
         /// </summary>
         public FormMain()
         {
             InitializeComponent();
-            db = new BaseContext();                           
+            _db = new BaseContext();                           
         }
         /// <summary>
         /// Заполнение списка книг
         /// </summary>
         private void FillListViewBooks()
         {
-            listBook = new List<ListViewItem>();   
+            _listBook = new List<ListViewItem>();   
             listViewBooks.Items.Clear();         
 
-            foreach (Book item in db.Books)
+            foreach (Book item in _db.Books)
             {
                 ListViewItem listItem = new ListViewItem(item.BookId.ToString());
                 string authors = "";
 
                 var authorCollection =
-                    db.Books.Where(book => book.BookId == item.BookId).SelectMany(book => book.Authors);
+                    _db.Books.Where(book => book.BookId == item.BookId).SelectMany(book => book.Authors);
 
                 foreach (Author author in authorCollection)
                     authors += String.Format("{0}. {1}; ", author.FirstName[0], author.LastName);
 
-                string name = item.Name.ToString();
+                string name = item.Name;
 
                 if (name.Length > 50)
                     name = name.Substring(0, 50) + "...";
 
-                listItem.SubItems.AddRange(new string[] { name, item.Year.ToString(), authors });
-                listBook.Add(listItem);               
+                listItem.SubItems.AddRange(new[] { name, item.Year.ToString(), authors });
+                _listBook.Add(listItem);               
             }            
-            listViewBooks.Items.AddRange(listBook.ToArray());
+            listViewBooks.Items.AddRange(_listBook.ToArray());
 
             listViewBooks.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
             listViewBooks.AutoResizeColumn(2, ColumnHeaderAutoResizeStyle.HeaderSize);
@@ -74,19 +68,19 @@ namespace CatalogBooks
         /// </summary>
         private void FillListViewAuthors()
         {
-            listAuthor = new List<ListViewItem>();
+            _listAuthor = new List<ListViewItem>();
             listViewAuthors.Items.Clear();
 
-            foreach (Author item in db.Authors)
+            foreach (Author item in _db.Authors)
             {
                 ListViewItem listItem = new ListViewItem(item.AuthorID.ToString());
 
-                int bookCount = db.Authors.Where(author => author.AuthorID == item.AuthorID).SelectMany(author => author.Books).Count();
+                int bookCount = _db.Authors.Where(author => author.AuthorID == item.AuthorID).SelectMany(author => author.Books).Count();
 
-                listItem.SubItems.AddRange(new string[] { item.LastName.ToString(), item.FirstName.ToString(), bookCount.ToString() });
-                listAuthor.Add(listItem);
+                listItem.SubItems.AddRange(new [] { item.LastName, item.FirstName, bookCount.ToString() });
+                _listAuthor.Add(listItem);
             }
-            listViewAuthors.Items.AddRange(listAuthor.ToArray());
+            listViewAuthors.Items.AddRange(_listAuthor.ToArray());
 
             listViewAuthors.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
             listViewAuthors.AutoResizeColumn(3, ColumnHeaderAutoResizeStyle.HeaderSize);
@@ -128,7 +122,7 @@ namespace CatalogBooks
         {
             if (listViewBooks.SelectedItems.Count > 0)
             {
-                string path = db.Books.Find(int.Parse(listViewBooks.SelectedItems[0].SubItems[0].Text)).Path;
+                string path = _db.Books.Find(int.Parse(listViewBooks.SelectedItems[0].SubItems[0].Text)).Path;
                 if (File.Exists(path))
                     Process.Start(path);
                 else
@@ -138,20 +132,20 @@ namespace CatalogBooks
 
         private void listViewAuthors_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (listViewAuthors.SelectedItems.Count > 0 && activeForm)
+            if (listViewAuthors.SelectedItems.Count > 0 && _activeForm)
             {
                 FormAuthorBooks formAuthorBooks = new FormAuthorBooks(int.Parse(listViewAuthors.SelectedItems[0].SubItems[0].Text));                
                 int x = listViewBooks.PointToScreen(Point.Empty).X + e.X;
                 int y = listViewBooks.PointToScreen(Point.Empty).Y + e.Y;
                 formAuthorBooks.DesktopLocation = new Point(x, y);    
-                activeForm = false;
+                _activeForm = false;
                 formAuthorBooks.Show();                
             }
         }
 
         private void listViewAuthors_MouseClick(object sender, MouseEventArgs e)
         {
-            activeForm = true;
+            _activeForm = true;
         }
 
         private void toolStripTextBoxFilter_TextChanged(object sender, EventArgs e)
@@ -161,15 +155,15 @@ namespace CatalogBooks
 
             if (toolStripTextBoxFilter.Text != "")
             {
-                listViewBooks.Items.AddRange(listBook.Where(x => x.SubItems[1].ToString().IndexOf(toolStripTextBoxFilter.Text) != -1).ToArray());
+                listViewBooks.Items.AddRange(_listBook.Where(x => x.SubItems[1].ToString().Contains(toolStripTextBoxFilter.Text)).ToArray());
 
-                listViewAuthors.Items.AddRange(listAuthor.Where(x => x.SubItems[1].ToString().IndexOf(toolStripTextBoxFilter.Text) != -1 ||
-                    x.SubItems[2].ToString().IndexOf(toolStripTextBoxFilter.Text) != -1).ToArray());
+                listViewAuthors.Items.AddRange(_listAuthor.Where(x => x.SubItems[1].ToString().Contains(toolStripTextBoxFilter.Text) 
+                    || x.SubItems[2].ToString().Contains(toolStripTextBoxFilter.Text)).ToArray());
             }
             else
             {
-                listViewBooks.Items.AddRange(listBook.ToArray());
-                listViewAuthors.Items.AddRange(listAuthor.ToArray());
+                listViewBooks.Items.AddRange(_listBook.ToArray());
+                listViewAuthors.Items.AddRange(_listAuthor.ToArray());
             }
 
         }
