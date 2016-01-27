@@ -11,7 +11,7 @@ using System.Windows.Forms;
 namespace CatalogBooks
 {
     /// <summary>
-    /// Структура описания дополнительной информации
+    /// Структура для хранения дополнительной информации
     /// </summary>
     public struct AdditionalInfo
     {
@@ -55,6 +55,7 @@ namespace CatalogBooks
             _dt = new DataTable("Books");
             _checkFiles = new CheckFiles(".pdf|.djvu|.fb2");
             ListBooks = new List<Book>();
+            LoadData();
         }
 
         /// <summary>
@@ -67,20 +68,39 @@ namespace CatalogBooks
             _dt.Columns.Add("Год издания", Type.GetType("System.Int32"));
             _dt.Columns.Add("Путь", Type.GetType("System.String"));            
 
-            foreach (Book book in ListBooks)
-            {
-                string name = Path.GetFileName(book.Path);
-                name = name.Remove(name.LastIndexOf('.'));
-                _dt.Rows.Add(true, name, 2000, book.Path);
-                DictAuthor[book.Path] = new AdditionalInfo()
-                {
-                    Authors = "",
-                    Keywords = ""
-                };
-            }
+            /*foreach (Book book in ListBooks)
+                AddItem(book);*/
+
             dataGridViewMain.DataSource = _dt;
 
             dataGridViewMain.Columns["Путь"].ReadOnly = true;
+        }
+
+        /// <summary>
+        /// Добавление элемента в таблицу
+        /// </summary>
+        /// <param name="book">Книга</param>
+        private void AddItem(Book book)
+        {
+            ListBooks.Add(book);
+            string name = Path.GetFileName(book.Path);
+            name = name.Remove(name.LastIndexOf('.'));
+            _dt.Rows.Add(true, name, 2000, book.Path);
+            DictAuthor[book.Path] = new AdditionalInfo()
+            {
+                Authors = "",
+                Keywords = ""
+            };
+        }
+
+        /// <summary>
+        /// Проверка на вхождение в базу данных
+        /// </summary>
+        /// <param name="book"></param>
+        /// <returns>Входимость</returns>
+        private bool Contains(Book book)
+        {
+            return _db.Books.Any(item => item.MD5 == book.MD5);
         }
 
         /// <summary>
@@ -141,34 +161,41 @@ namespace CatalogBooks
         /// <summary>
         /// Выполняет сканирование папок
         /// </summary>
-        /// <returns></returns>
-        private async Task CheckDirectory()
+        private async Task CheckDirectoryAsync()
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            foreach (string path in Properties.Settings.Default.PathsScan.Split(';'))
-                if (path != "")
+
+            string[] folders =
+                Properties.Settings.Default.PathsScan.Split(';').Where(x => !String.IsNullOrEmpty(x)).ToArray();
+
+            _checkFiles.NewBook.Subscribe
+            (
+                onNext: x =>
                 {
-                    toolStripStatusLabelInfo.Text = String.Format("Проверка каталога: {0}", path);
-                    ListBooks.AddRange(await _checkFiles.Check(path));
+                    toolStripStatusLabelInfo.Text = String.Format("Проверка файла: {0}", x.Path);
+                    if (!Contains(x))
+                        AddItem(x);
+                },
+                onCompleted: () =>
+                {
+                    sw.Stop();
+
+                    if (ListBooks.Count == 0)
+                        toolStripStatusLabelInfo.Text = "Сканирование не дало результатов. ";
+                    else
+                        toolStripStatusLabelInfo.Text = String.Format("Было обнаружено: {0} файлов. ", ListBooks.Count);
+
+                    toolStripStatusLabelInfo.Text += String.Format("Время: {0:F2} сек.", sw.Elapsed.TotalSeconds);
                 }
-            sw.Stop();
+            );
 
-            TimeSpan elapsedTime = sw.Elapsed;
-
-            if (ListBooks.Count == 0)
-                toolStripStatusLabelInfo.Text = "Сканирование не дало результатов. ";
-            else
-                toolStripStatusLabelInfo.Text = String.Format("Было обнаружено: {0} файлов. ", ListBooks.Count);
-
-            toolStripStatusLabelInfo.Text += String.Format("Время: {0:F2} сек.", elapsedTime.TotalSeconds);            
-
-            LoadData();
+            await _checkFiles.CheckForldersAsync(folders);                   
         } 
 
         private async void FormBooksDetected_Load(object sender, EventArgs e)
         {
-            await CheckDirectory();
+            await CheckDirectoryAsync();
         }
 
         private void dataGridViewMain_CellLeave(object sender, DataGridViewCellEventArgs e)
