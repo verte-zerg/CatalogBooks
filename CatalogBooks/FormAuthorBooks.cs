@@ -29,8 +29,8 @@ namespace CatalogBooks
             using (Graphics gr = dataGridViewBooks.CreateGraphics())
             {
                 double width = gr.MeasureString(str, Font).Width;
-                if (width > dataGridViewBooks.Width - 10)
-                    return str.Substring(0, Convert.ToInt32(str.Length * (dataGridViewBooks.Width - 10)/width));
+                if (width > dataGridViewBooks.Width)
+                    return str.Substring(0, Convert.ToInt32(str.Length * (dataGridViewBooks.Width)/width));
             }
             return str;
         }

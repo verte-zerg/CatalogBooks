@@ -155,10 +155,10 @@ namespace CatalogBooks
 
             if (toolStripTextBoxFilter.Text != "")
             {
-                listViewBooks.Items.AddRange(_listBook.Where(x => x.SubItems[1].ToString().Contains(toolStripTextBoxFilter.Text)).ToArray());
+                listViewBooks.Items.AddRange(_listBook.Where(x => x.SubItems[1].ToString().ToLower().Contains(toolStripTextBoxFilter.Text.ToLower())).ToArray());
 
-                listViewAuthors.Items.AddRange(_listAuthor.Where(x => x.SubItems[1].ToString().Contains(toolStripTextBoxFilter.Text) 
-                    || x.SubItems[2].ToString().Contains(toolStripTextBoxFilter.Text)).ToArray());
+                listViewAuthors.Items.AddRange(_listAuthor.Where(x => x.SubItems[1].ToString().ToLower().Contains(toolStripTextBoxFilter.Text.ToLower()) 
+                    || x.SubItems[2].ToString().ToLower().Contains(toolStripTextBoxFilter.Text.ToLower())).ToArray());
             }
             else
             {

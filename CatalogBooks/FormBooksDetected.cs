@@ -68,9 +68,6 @@ namespace CatalogBooks
             _dt.Columns.Add("Год издания", Type.GetType("System.Int32"));
             _dt.Columns.Add("Путь", Type.GetType("System.String"));            
 
-            /*foreach (Book book in ListBooks)
-                AddItem(book);*/
-
             dataGridViewMain.DataSource = _dt;
 
             dataGridViewMain.Columns["Путь"].ReadOnly = true;
@@ -83,8 +80,7 @@ namespace CatalogBooks
         private void AddItem(Book book)
         {
             ListBooks.Add(book);
-            string name = Path.GetFileName(book.Path);
-            name = name.Remove(name.LastIndexOf('.'));
+            string name = Path.GetFileNameWithoutExtension(book.Path);
             _dt.Rows.Add(true, name, 2000, book.Path);
             DictAuthor[book.Path] = new AdditionalInfo()
             {

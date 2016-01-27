@@ -51,6 +51,9 @@ namespace CatalogBooks
 
         private void buttonDel_Click(object sender, EventArgs e)
         {
+            if (dataGridViewMain.SelectedRows.Count == 0)
+                MessageBox.Show("Для удаления строк выделите их полностью.", "Подсказка");
+
             foreach (DataGridViewRow row in dataGridViewMain.SelectedRows)
                 dataGridViewMain.Rows.Remove(row);
         }
