@@ -63,10 +63,10 @@ namespace CatalogBooks
         /// </summary>
         private void LoadData()
         {           
-            _dt.Columns.Add("Добавить", Type.GetType("System.Boolean"));
-            _dt.Columns.Add("Название", Type.GetType("System.String"));
-            _dt.Columns.Add("Год издания", Type.GetType("System.Int32"));
-            _dt.Columns.Add("Путь", Type.GetType("System.String"));            
+            _dt.Columns.Add("Добавить", typeof(Boolean));
+            _dt.Columns.Add("Название", typeof(String));
+            _dt.Columns.Add("Год издания", typeof(Int32));
+            _dt.Columns.Add("Путь", typeof(String));            
 
             dataGridViewMain.DataSource = _dt;
 

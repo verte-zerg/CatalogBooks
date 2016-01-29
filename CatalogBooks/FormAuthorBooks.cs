@@ -42,8 +42,8 @@ namespace CatalogBooks
         {
             var books = _db.Authors.Where(author => author.AuthorID == AuthorId).Select(author => author.Books).First();            
             DataTable dt = new DataTable();
-            dt.Columns.Add("ID", Type.GetType("System.Int32"));            
-            dt.Columns.Add("Название", Type.GetType("System.String"));
+            dt.Columns.Add("ID", typeof(Int32));            
+            dt.Columns.Add("Название", typeof(String));
             foreach (Book book in books)
                 dt.Rows.Add(book.BookId, GetCutString(book.Name));
             dataGridViewBooks.DataSource = dt;

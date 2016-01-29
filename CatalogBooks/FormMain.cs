@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -37,7 +38,7 @@ namespace CatalogBooks
         private void FillListViewBooks()
         {
             _listBook = new List<ListViewItem>();   
-            listViewBooks.Items.Clear();         
+            listViewBooks.Items.Clear();
 
             foreach (Book item in _db.Books)
             {
@@ -88,12 +89,10 @@ namespace CatalogBooks
 
         private void ScanFiles(object sender, EventArgs e)
         {
-            if (!(sender is ToolStripMenuItem))
-            {
-                if (Settings.Default.AutoScan)
-                    new FormBooksDetected().ShowDialog();   
-            }
-            else
+            if (!(sender is ToolStripMenuItem) && Settings.Default.AutoScan)
+                new FormBooksDetected().ShowDialog(); 
+              
+            if (sender is ToolStripMenuItem)
                 new FormBooksDetected().ShowDialog();
 
             FillListViewBooks();
@@ -155,10 +154,11 @@ namespace CatalogBooks
 
             if (toolStripTextBoxFilter.Text != "")
             {
-                listViewBooks.Items.AddRange(_listBook.Where(x => x.SubItems[1].ToString().ToLower().Contains(toolStripTextBoxFilter.Text.ToLower())).ToArray());
+                string search = toolStripTextBoxFilter.Text.ToLower();
+                listViewBooks.Items.AddRange(_listBook.Where(x => x.SubItems[1].ToString().ToLower().Contains(search)).ToArray());
 
-                listViewAuthors.Items.AddRange(_listAuthor.Where(x => x.SubItems[1].ToString().ToLower().Contains(toolStripTextBoxFilter.Text.ToLower()) 
-                    || x.SubItems[2].ToString().ToLower().Contains(toolStripTextBoxFilter.Text.ToLower())).ToArray());
+                listViewAuthors.Items.AddRange(_listAuthor.Where(x => x.SubItems[1].ToString().ToLower().Contains(search) 
+                    || x.SubItems[2].ToString().ToLower().Contains(search)).ToArray());
             }
             else
             {
