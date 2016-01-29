@@ -30,6 +30,7 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.dataGridViewMain = new System.Windows.Forms.DataGridView();
+            this.buttonOpen = new System.Windows.Forms.Button();
             this.buttonClose = new System.Windows.Forms.Button();
             this.buttonAccept = new System.Windows.Forms.Button();
             this.buttonUnselect = new System.Windows.Forms.Button();
@@ -63,6 +64,7 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.buttonOpen);
             this.splitContainer1.Panel2.Controls.Add(this.buttonClose);
             this.splitContainer1.Panel2.Controls.Add(this.buttonAccept);
             this.splitContainer1.Panel2.Controls.Add(this.buttonUnselect);
@@ -90,6 +92,18 @@
             this.dataGridViewMain.TabIndex = 0;
             this.dataGridViewMain.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewMain_CellClick);
             this.dataGridViewMain.CellLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewMain_CellLeave);
+            // 
+            // buttonOpen
+            // 
+            this.buttonOpen.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonOpen.Location = new System.Drawing.Point(8, 90);
+            this.buttonOpen.Name = "buttonOpen";
+            this.buttonOpen.Size = new System.Drawing.Size(191, 36);
+            this.buttonOpen.TabIndex = 6;
+            this.buttonOpen.Text = "Открыть";
+            this.buttonOpen.UseVisualStyleBackColor = true;
+            this.buttonOpen.Click += new System.EventHandler(this.buttonOpen_Click);
             // 
             // buttonClose
             // 
@@ -224,5 +238,6 @@
         private System.Windows.Forms.Button buttonAccept;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabelInfo;
+        private System.Windows.Forms.Button buttonOpen;
     }
 }

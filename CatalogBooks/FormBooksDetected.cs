@@ -211,8 +211,10 @@ namespace CatalogBooks
 
         private void dataGridViewMain_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            AdditionalInfo additionalInfo = DictAuthor[dataGridViewMain.Rows[e.RowIndex].Cells["Путь"].Value.ToString()];
+            string fileName = dataGridViewMain.Rows[e.RowIndex].Cells["Путь"].Value.ToString();
+            AdditionalInfo additionalInfo = DictAuthor[fileName];
 
+            buttonOpen.Tag = fileName;
             textBoxAuthors.Text = additionalInfo.Authors;
             textBoxKeywords.Text = additionalInfo.Keywords;
         }
@@ -230,6 +232,17 @@ namespace CatalogBooks
         private void buttonUnselect_Click(object sender, EventArgs e)
         {
             CheckedItems(false);
+        }
+
+        private void buttonOpen_Click(object sender, EventArgs e)
+        {
+            string fileName = (sender as Control).Tag.ToString();
+
+            if (File.Exists(fileName))
+                Process.Start(fileName);
+            else
+                MessageBox.Show(String.Format("Файл '{0}'", fileName));
+
         }
     }
 }
