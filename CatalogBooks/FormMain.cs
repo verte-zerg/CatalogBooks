@@ -125,7 +125,7 @@ namespace CatalogBooks
                 if (File.Exists(path))
                     Process.Start(path);
                 else
-                    MessageBox.Show(String.Format("Файл по указанному пути не найден: {0}", path));
+                    MessageBox.Show(String.Format("Файл по указанному пути не найден: {0}.", path), "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

@@ -26,6 +26,10 @@ namespace CatalogBooks
         /// </summary>
         private List<Book> ListBooks { get; set; }
         /// <summary>
+        /// Объект для хранения подазрительных книг
+        /// </summary>
+        private Dictionary<int, string> WarningBooks { get; set; }
+        /// <summary>
         /// Объект для хранения дополнительной инфорамации об обнаруженных файлов
         /// </summary>
         private Dictionary<string, AdditionalInfo> DictAuthor { get; set; }
@@ -55,6 +59,7 @@ namespace CatalogBooks
             _dt = new DataTable("Books");
             _checkFiles = new CheckFiles(".pdf|.djvu|.fb2");
             ListBooks = new List<Book>();
+            WarningBooks = new Dictionary<int, string>();
             LoadData();
         }
 
@@ -94,9 +99,25 @@ namespace CatalogBooks
         /// </summary>
         /// <param name="book"></param>
         /// <returns>Входимость</returns>
-        private bool Contains(Book book)
+        private void CheckBook(Book book)
         {
-            return _db.Books.Any(item => item.MD5 == book.MD5);
+            bool bookExist = _db.Books.Any(item => item.MD5 == book.MD5);
+            if (bookExist)
+            {
+                Book dbBook = _db.Books.First(item => item.MD5 == book.MD5);
+                if (dbBook.Path != book.Path)
+                    WarningBooks.Add(dbBook.BookId, book.Path);
+            }
+
+            if (!bookExist)
+                AddItem(book);
+        }
+
+        private void RepairBooks()
+        {
+            foreach (int bookId in WarningBooks.Keys)
+                _db.Books.Find(bookId).Path = WarningBooks[bookId];
+            _db.SaveChanges();
         }
 
         /// <summary>
@@ -170,8 +191,7 @@ namespace CatalogBooks
                 onNext: x =>
                 {
                     toolStripStatusLabelInfo.Text = String.Format("Проверка файла: {0}", x.Path);
-                    if (!Contains(x))
-                        AddItem(x);
+                    CheckBook(x);
                 },
                 onCompleted: () =>
                 {
@@ -180,13 +200,18 @@ namespace CatalogBooks
                     if (ListBooks.Count == 0)
                         toolStripStatusLabelInfo.Text = "Сканирование не дало результатов. ";
                     else
-                        toolStripStatusLabelInfo.Text = String.Format("Было обнаружено: {0} файлов. ", ListBooks.Count);
+                        toolStripStatusLabelInfo.Text = String.Format("Было обнаружено: {0} файлов.", ListBooks.Count);
 
                     toolStripStatusLabelInfo.Text += String.Format("Время: {0:F2} сек.", sw.Elapsed.TotalSeconds);
+
+                    if (WarningBooks.Count > 0 && MessageBox.Show(String.Format("Количество книг имеющих неверный путь: {0}. Исправить?", WarningBooks.Count),
+                        "Предупреждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        RepairBooks();
+
                 }
             );
 
-            await _checkFiles.CheckForldersAsync(folders);                   
+            await _checkFiles.CheckForldersAsync(folders);                               
         } 
 
         private async void FormBooksDetected_Load(object sender, EventArgs e)
